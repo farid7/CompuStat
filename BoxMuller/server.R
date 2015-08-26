@@ -20,7 +20,7 @@ shinyServer(function(input, output) {
   output$summary <- renderPrint({
     summary(data())
   })
-  
+  ls
   output$table <- renderTable({
     data.frame(x=data())
   })
