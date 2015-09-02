@@ -146,7 +146,7 @@ shinyServer(function(input, output) {
    eReal <- erf(sqrt(2))^input$n
    
    par(mfrow = c(2,1))
-   plot(N, rep(eReal, input$num), type = "l", main = paste("Estimador"))
+   plot(N, rep(eReal, input$num), type = "l", main = paste("Estimador"), ylim = c(0,1))
    lines(N, mont(input$n, input$from, input$to), col = "blue")
    lines(N, trap(input$n, input$from, input$to), col = "red")
    lines(N, riem(input$n, input$from, input$to), col = "green")
