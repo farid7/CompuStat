@@ -1,4 +1,5 @@
 library(shiny)
+library(pracma)
 
 shinyServer(function(input, output) {
   f <- function(x) {
@@ -141,7 +142,8 @@ shinyServer(function(input, output) {
    }
    ######
    N <- seq(1, input$num)
-   eReal <- (f(2)- f(-2))^2
+#   eReal <- (f(2)- f(-2))^input&n
+   eReal <- erf(sqrt(2))^2
    
    par(mfrow = c(2,1))
    plot(N, rep(eReal, input$num), type = "l", main = paste("Estimador"))
