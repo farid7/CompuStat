@@ -17,7 +17,7 @@ shinyUI(fluidPage(
                   "Numero de puntos a generar:", 
                   value = 500,
                   min = 1, 
-                  max = 1000),x
+                  max = 1000),
       
       sliderInput("lambda", 
                   "Valor lambda para la distribución exponencial:", 
