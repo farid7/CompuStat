@@ -1,0 +1,74 @@
+library(shiny)
+require(plyr)
+
+uniforme <- function(n,from=0, to=2){
+  return(runif(n, from, to))
+}
+
+inversa <- function(n, lambda=2){
+  return((1/lambda)*log(1/(1-runif(n))))
+}
+
+phi <- function(x, m=1)
+{
+  return(m*exp(-m*x))
+}
+
+monteCarlo <- function(n, phi=phi, from=0, to=2, alpha=0.05){
+  U <- uniforme(n, from, to)
+  estimador <- 2*mean(phi(U))
+  S2 <- var(phi(U))
+  quantil <- qnorm(alpha/2, lower.tail = FALSE)
+  LI <- estimador - quantil*sqrt(S2/n)
+  LU <- estimador + quantil*sqrt(S2/n)
+  return(data.frame(N=n, LimInf=LI, MonteCarloCrudo=estimador, LimSup=LU))
+}
+
+mc.beta <- function(n, phi=phi, shape1=1, shape2=3, alpha=0.05){
+  U <- rbeta(n, shape1, shape2)
+  estimador <- 2*mean(phi(U)/dbeta(U, shape1, shape2))
+  S2 <- var(phi(U))
+  quantil <- qnorm(alpha/2, lower.tail = FALSE)
+  LI <- estimador - quantil*sqrt(S2/n)
+  LU <- estimador + quantil*sqrt(S2/n)
+  return(data.frame(N=n, LimInf=LI, MonteCarlo=estimador, LimSup=LU))
+}
+
+shinyServer(function(input, output) {
+  
+  crudo <- reactive({
+    ldply(seq(2, input$n), monteCarlo, input$n)
+  })
+  bet <- reactive({
+    ldply(seq(2, input$n), mc.beta, input$n)
+  })
+  
+  dens <- reactive({
+    densidad(input$n)
+  })
+  
+  output$plot <- renderPlot({
+   par(mfrow=c(2,1))
+#    hist(dens())
+    plot(bet()$N, bet()$MonteCarlo, main= paste("Monte Carlo densidad Exponencial: "), ylab = "Aproximación por Monte Carlo", xlab="Número de simulaciones",
+         ylim = c(0,1.5), col = "darkgreen")
+    abline(h=(1-exp(-2)), untf=FALSE, col = "red")
+    lines(bet()$N, bet()$LimInf, col="darkgray")
+    lines(bet()$N, bet()$LimSup, col="darkgray")
+    ##############################################
+    plot(crudo()$N, crudo()$MonteCarloCrudo, main= paste("Monte Carlo Crudo: "), ylab = "Aproximación por Monte Carlo", xlab="Número de simulaciones",
+         ylim = c(0,1.5), col = "darkgreen")
+    abline(h=(1-exp(-2)), untf=FALSE, col = "red")
+    lines(crudo()$N, crudo()$LimInf, col="darkgray")
+    lines(crudo()$N, crudo()$LimSup, col="darkgray")
+  })
+  
+  output$summary <- renderPrint({
+    summary(dens())
+  })
+  
+  output$table <- renderTable({
+    data.frame(crudo())
+  })
+  
+})
