@@ -21,9 +21,9 @@ shinyUI(fluidPage(
       
       sliderInput("lambda", 
                   "Valor lambda para la distribución exponencial:", 
-                  value = 1,
+                  value = 5,
                   min = 0.01, 
-                  max = 5)
+                  max = 10)
     ),
     
 
